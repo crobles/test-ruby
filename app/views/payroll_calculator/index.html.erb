@@ -1,0 +1,145 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h1 class="text-center mb-4">Sistema de Cálculo de Conceptos de Remuneración</h1>
+    <p class="text-center text-muted mb-4">Calcula gratificaciones, aguinaldos y primas para México, Chile y Colombia</p>
+    
+    <%= form_with url: calculate_path, method: :post, local: true, class: "card p-4 shadow" do |form| %>
+      <div class="mb-3">
+        <%= form.label :country, "País:", class: "form-label fw-bold" %>
+        <%= form.select :country, 
+            options_for_select([
+              ['Seleccionar país...', ''],
+              ['Chile', 'chile'],
+              ['México', 'mexico'], 
+              ['Colombia', 'colombia']
+            ], params[:country]), 
+            { prompt: false }, 
+            { class: "form-select", onchange: "toggleFields()" } %>
+      </div>
+
+      <!-- Campos para Chile -->
+      <div id="chile-fields" class="country-fields" style="display: none;">
+        <h5 class="text-primary mb-3">Gratificación Legal - Chile</h5>
+        <div class="mb-3">
+          <%= form.label :sueldo_base_mensual, "Sueldo base mensual (CLP):", class: "form-label" %>
+          <%= form.number_field :sueldo_base_mensual, 
+              value: params[:sueldo_base_mensual], 
+              class: "form-control", 
+              placeholder: "Ej: 1200000" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :ingreso_minimo_mensual, "Ingreso mínimo mensual (CLP):", class: "form-label" %>
+          <%= form.number_field :ingreso_minimo_mensual, 
+              value: params[:ingreso_minimo_mensual], 
+              class: "form-control", 
+              placeholder: "Ej: 460000" %>
+        </div>
+      </div>
+
+      <!-- Campos para México -->
+      <div id="mexico-fields" class="country-fields" style="display: none;">
+        <h5 class="text-success mb-3">Aguinaldo - México</h5>
+        <div class="mb-3">
+          <%= form.label :salario_diario, "Salario diario (MXN):", class: "form-label" %>
+          <%= form.number_field :salario_diario, 
+              value: params[:salario_diario], 
+              class: "form-control", 
+              placeholder: "Ej: 1000" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :dias_trabajados_año, "Días trabajados en el año:", class: "form-label" %>
+          <%= form.number_field :dias_trabajados_año, 
+              value: params[:dias_trabajados_año], 
+              class: "form-control", 
+              placeholder: "Ej: 365" %>
+        </div>
+      </div>
+
+      <!-- Campos para Colombia -->
+      <div id="colombia-fields" class="country-fields" style="display: none;">
+        <h5 class="text-warning mb-3">Prima de Servicios - Colombia</h5>
+        <div class="mb-3">
+          <%= form.label :salario_mensual, "Salario mensual (COP):", class: "form-label" %>
+          <%= form.number_field :salario_mensual, 
+              value: params[:salario_mensual], 
+              class: "form-control", 
+              placeholder: "Ej: 2000000" %>
+        </div>
+        <div class="mb-3">
+          <%= form.label :dias_trabajados_semestre, "Días trabajados en el semestre:", class: "form-label" %>
+          <%= form.number_field :dias_trabajados_semestre, 
+              value: params[:dias_trabajados_semestre], 
+              class: "form-control", 
+              placeholder: "Ej: 180" %>
+        </div>
+      </div>
+
+      <div class="d-grid">
+        <%= form.submit "Calcular", class: "btn btn-primary btn-lg" %>
+      </div>
+    <% end %>
+
+    <!-- Mostrar resultado -->
+    <% if @calculation_result %>
+      <div class="card mt-4 shadow">
+        <div class="card-header bg-light">
+          <h4 class="mb-0">
+            <i class="fas fa-calculator"></i> Resultado del Cálculo
+          </h4>
+        </div>
+        <div class="card-body">
+          <% if @calculation_result[:error] %>
+            <div class="alert alert-danger">
+              <strong>Error:</strong> <%= @calculation_result[:error] %>
+            </div>
+          <% else %>
+            <div class="row">
+              <div class="col-md-6">
+                <h5 class="text-muted">País y Concepto</h5>
+                <p class="fs-5"><strong><%= @calculation_result[:country] %></strong> - <%= @calculation_result[:concept] %></p>
+              </div>
+              <div class="col-md-6 text-end">
+                <h5 class="text-muted">Monto Calculado</h5>
+                <p class="fs-3 text-success">
+                  <strong>
+                    $<%= number_with_delimiter(@calculation_result[:amount].round(0)) %> 
+                    <%= @calculation_result[:currency] %>
+                  </strong>
+                </p>
+              </div>
+            </div>
+            
+            <hr>
+            
+            <div class="alert alert-info">
+              <h6><i class="fas fa-info-circle"></i> Desglose del Cálculo:</h6>
+              <p class="mb-0"><%= @calculation_result[:breakdown][:explanation] %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+function toggleFields() {
+  const country = document.querySelector('select[name="country"]').value;
+  const allFields = document.querySelectorAll('.country-fields');
+  
+  // Ocultar todos los campos
+  allFields.forEach(field => field.style.display = 'none');
+  
+  // Mostrar campos del país seleccionado
+  if (country) {
+    const targetField = document.getElementById(country + '-fields');
+    if (targetField) {
+      targetField.style.display = 'block';
+    }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  toggleFields();
+});
+</script>

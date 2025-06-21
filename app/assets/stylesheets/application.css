@@ -1,0 +1,11 @@
+/*
+ *= require_tree .
+ *= require_self
+ */
+
+.country-fields {
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border-left: 4px solid #007bff;
+}
