@@ -1,0 +1,29 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - RAILS_ENV=development
+      - RAILS_SERVE_STATIC_FILES=true
+    volumes:
+      # Solo para desarrollo - comentar en producción
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    stdin_open: true
+    tty: true
+
+  # Servicio para ejecutar tests
+  test:
+    build: .
+    environment:
+      - RAILS_ENV=test
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    command: bundle exec rspec
+    profiles:
+      - test
+
+volumes:
+  bundle_cache:
