@@ -62,8 +62,6 @@ docker-compose exec web bundle exec rspec spec/system/payroll_calculation_spec.r
 - `docker-entrypoint.sh` - Script de inicialización
 - `.dockerignore` - Archivos excluidos del build
 
-## Solución de Problemas
-
 ### La aplicación no inicia
 
 ```bash
